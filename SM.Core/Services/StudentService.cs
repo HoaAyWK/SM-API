@@ -56,7 +56,7 @@ public class StudentService : IStudentService
 
         await _unitOfWork.SaveChangesAsync();
         
-        var response = _mapper.Map<CreateStudentResponse>(student);
+        var response = _mapper.Map<CreateStudentResponse>(result);
 
         return response;
     }

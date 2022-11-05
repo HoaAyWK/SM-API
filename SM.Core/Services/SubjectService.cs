@@ -39,17 +39,18 @@ public class SubjectService : ISubjectService
 
     public async Task<CreateSubjectResponse?> CreateAsync(CreateSubjectRequest request)
     {
-        var subject = new Subject(request.Name, request.NumOfCredits);
-        var result = await _unitOfWork.Subjects.AddAsync(subject);
+        var existingSubject = await _unitOfWork.Subjects.GetSubjectByNameAsync(request.Name);
 
-        if (result == null)
-        {
+        if (existingSubject != null) {
             return null;
         }
 
+        var subject = new Subject(request.Name, request.NumOfCredits);
+        var result = await _unitOfWork.Subjects.AddAsync(subject);
+
         await _unitOfWork.SaveChangesAsync();
         
-        var response = _mapper.Map<CreateSubjectResponse>(subject);
+        var response = _mapper.Map<CreateSubjectResponse>(result);
 
         return response;
     }

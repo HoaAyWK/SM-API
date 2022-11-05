@@ -52,7 +52,9 @@ public class InstructorService : IInstructorService
         if (result == null)
             return null;
 
-        var response = _mapper.Map<CreateInstructorResponse>(instructor);
+        await _unitOfWork.SaveChangesAsync();
+        
+        var response = _mapper.Map<CreateInstructorResponse>(result);
 
         return response;
     }

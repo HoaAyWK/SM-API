@@ -7,19 +7,19 @@ public class UpdateInstructorRequest
     public int Id { get; set; }
 
     [Required]
-    public string FirstName { get; private set; } = default!;
+    public string FirstName { get; set; } = default!;
 
     [Required]
-    public string LastName { get; private set; } = default!;
+    public string LastName { get; set; } = default!;
 
     [Required]
-    public string Email { get; private set; } = default!;
+    public string Email { get; set; } = default!;
 
     [Required]
-    public string Phone { get; private set; } = default!;
+    public string Phone { get; set; } = default!;
 
-    public DateTime DateOfBirth { get; private set; }
+    public DateTime DateOfBirth { get; set; }
 
     [Required]
-    public string Status { get; private set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
 }

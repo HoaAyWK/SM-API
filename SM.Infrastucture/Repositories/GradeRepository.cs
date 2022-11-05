@@ -15,6 +15,10 @@ public class GradeRepository : GenericRepository<Grade>, IGradeRepository
     {
         return await dbSet.Include(g => g.Course)
                 .ThenInclude(c => c!.Subject)
+            .Include(g => g.Course)
+                .ThenInclude(c => c!.Semester)
+            .Include(g => g.Course)
+                .ThenInclude(c => c!.Instructor)
             .Include(g => g.Student)
             .AsNoTracking()
             .ToListAsync();
@@ -25,7 +29,18 @@ public class GradeRepository : GenericRepository<Grade>, IGradeRepository
         return await dbSet.Where(g => g.Id == id)
             .Include(g => g.Course)
                 .ThenInclude(c => c!.Subject)
+            .Include(g => g.Course)
+                .ThenInclude(c => c!.Semester)
+            .Include(g => g.Course)
+                .ThenInclude(c => c!.Instructor)
             .Include(g => g.Student)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<Grade?> GetGradeByCourseAndStudentAsync(int courseId, int studentId)
+    {
+        return await dbSet
+            .Where(x => x.CourseId == courseId && x.StudentId == studentId)
             .FirstOrDefaultAsync();
     }
 }

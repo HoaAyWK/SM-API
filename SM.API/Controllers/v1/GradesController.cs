@@ -42,7 +42,11 @@ public class GradesController : BaseController
     {
         var result = await _gradeService.CreateAsync(request);
 
-        return Ok(result);
+        if (!result.Success) {
+            return BadRequest(result.Message);
+        }
+
+        return Ok(result.Data);
     }
 
     [HttpDelete]

@@ -15,6 +15,10 @@ public class EnrollmentRepository : GenericRepository<Enrollment>, IEnrollmentRe
     {
         return await dbSet.Include(e => e.Course)
                 .ThenInclude(c => c!.Subject)
+            .Include(e => e.Course)
+                .ThenInclude(c => c!.Semester)
+            .Include(e => e.Course)
+                .ThenInclude(c => c!.Instructor)
             .Include(e => e.Student)
             .AsNoTracking()
             .ToListAsync();
@@ -25,7 +29,18 @@ public class EnrollmentRepository : GenericRepository<Enrollment>, IEnrollmentRe
         return await dbSet.Where(e => e.Id == id)
             .Include(e => e.Course)
                 .ThenInclude(c => c!.Subject)
+            .Include(e => e.Course)
+                .ThenInclude(c => c!.Semester)
+            .Include(e => e.Course)
+                .ThenInclude(c => c!.Instructor)
             .Include(e => e.Student)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<Enrollment?> GetEnrollmentByCourseAndStudentAsync(int courseId, int studentId)
+    {
+        return await dbSet
+            .Where(x => x.CourseId == courseId && x.StudentId == studentId)
             .FirstOrDefaultAsync();
     }
 }

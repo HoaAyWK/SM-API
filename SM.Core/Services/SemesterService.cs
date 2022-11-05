@@ -39,13 +39,18 @@ public class SemesterService : ISemesterService
 
     public async Task<CreateSemesterResponse?> CreateAsync(CreateSemesterRequest request)
     {
+        var existingSemester = await _unitOfWork.Semesters.GetSemesterByNameAsync(request.Name);
+
+        if (existingSemester != null) {
+            return null;
+        }
+
         var semester = new Semester(request.Name);
         var result = await _unitOfWork.Semesters.AddAsync(semester);
 
-        if (result == null)
-            return null;
+        await _unitOfWork.SaveChangesAsync();
 
-        var response = _mapper.Map<CreateSemesterResponse>(semester);
+        var response = _mapper.Map<CreateSemesterResponse>(result);
 
         return response;
     }

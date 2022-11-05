@@ -42,6 +42,11 @@ public class SemestersController : BaseController
     {
         var result = await _semesterService.CreateAsync(request);
 
+        if (result == null)
+        {
+            return BadRequest($"Semester with name '{request.Name}' already exists");
+        }
+
         return Ok(result);
     }
 

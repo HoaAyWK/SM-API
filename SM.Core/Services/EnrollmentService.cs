@@ -1,4 +1,5 @@
 using AutoMapper;
+using SM.Core.DTOs;
 using SM.Core.DTOs.Enrollment;
 using SM.Core.Entities;
 using SM.Core.Interfaces.Services;
@@ -39,27 +40,52 @@ public class EnrollmentService : IEnrollmentService
 
     public async Task<CreateEnrollmentResponse?> CreateAsync(CreateEnrollmentRequest request)
     {
-        var enrollment = new Enrollment(request.StudentId, request.CourseId);
+        var existingEnrollment = await _unitOfWork.Enrollments
+            .GetEnrollmentByCourseAndStudentAsync(request.CourseId, request.StudentId);
+        
+        if (existingEnrollment != null) {
+            return null;
+        }
+
+        var enrollment = new Enrollment(request.CourseId, request.StudentId);
         var result = await _unitOfWork.Enrollments.AddAsync(enrollment);
 
-        if (result == null)
-            return null;
+        await _unitOfWork.SaveChangesAsync();
 
-        var response = _mapper.Map<CreateEnrollmentResponse>(enrollment);
+        var response = _mapper.Map<CreateEnrollmentResponse>(result);
 
         return response;
     }
 
-    public async Task<DeleteEnrollmentResponse?> DeleteAsync(DeleteEnrollmentRequest request)
+    public async Task<Result<DeleteEnrollmentResponse>> DeleteAsync(DeleteEnrollmentRequest request)
     {
-        var semesterToDelete = await _unitOfWork.Enrollments.GetByIdAsync(request.EnrollmentId);
+        var response = new Result<DeleteEnrollmentResponse>();
+        var enrollmentToDelete = await _unitOfWork.Enrollments.GetByIdAsync(request.EnrollmentId);
 
-        if (semesterToDelete == null)
-            return null;
+        if (enrollmentToDelete == null)
+        {
+            response.Code = 404;
+            response.Message = "Enrollment not found";
+            
+            return response;
+        }
+
+        var existingGrade = await _unitOfWork.Grades.GetGradeByCourseAndStudentAsync(enrollmentToDelete.CourseId, enrollmentToDelete.StudentId);
+
+        if (existingGrade != null)
+        {
+            response.Code = 400;
+            response.Message = $"Please delete Grade with courseId '{enrollmentToDelete.CourseId}' and studentId '{enrollmentToDelete.StudentId}' first!";
+
+            return response;
+        } 
         
-        _unitOfWork.Enrollments.Delete(semesterToDelete);
+        _unitOfWork.Enrollments.Delete(enrollmentToDelete);
         await _unitOfWork.SaveChangesAsync();
 
-        return new DeleteEnrollmentResponse();
+        response.Success = true;
+        response.Data = new DeleteEnrollmentResponse();
+        
+        return response;
     }
 }

@@ -28,7 +28,8 @@ public class SubjectsController : BaseController
     {
         var result = await _subjectService.GetByIdAsync(id);
 
-        if (result == null) {
+        if (result == null)
+        {
             return BadRequest("Subject not found");
         }
 
@@ -41,6 +42,10 @@ public class SubjectsController : BaseController
     public async Task<IActionResult> Create([FromBody] CreateSubjectRequest request)
     {
         var result = await _subjectService.CreateAsync(request);
+
+        if (result == null) {
+            return BadRequest($"Subject with name '{request.Name}' already exists");
+        }
 
         return Ok(result);
     }

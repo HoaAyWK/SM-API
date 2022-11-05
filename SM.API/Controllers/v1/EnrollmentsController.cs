@@ -42,6 +42,11 @@ public class EnrollmentsController : BaseController
     {
         var result = await _enrollmentService.CreateAsync(request);
 
+        if (result == null)
+        {
+            return BadRequest($"Enrollment with studentId '{request.StudentId}' and courseId '{request.CourseId}' already exists");
+        }
+
         return Ok(result);
     }
 
@@ -52,9 +57,11 @@ public class EnrollmentsController : BaseController
     {
         var result = await _enrollmentService.DeleteAsync(request);
 
-        if (result == null)
-            return BadRequest("Enrollment not found");
+        if (!result.Success)
+        {
+            return BadRequest(result.Message);
+        }
 
-        return Ok(result);
+        return Ok(result.Data);
     }
 }
