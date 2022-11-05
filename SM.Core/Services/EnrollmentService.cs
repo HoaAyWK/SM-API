@@ -47,12 +47,13 @@ public class EnrollmentService : IEnrollmentService
             return null;
         }
 
-        var enrollment = new Enrollment(request.CourseId, request.StudentId);
-        var result = await _unitOfWork.Enrollments.AddAsync(enrollment);
+        var newEnrollment = new Enrollment(request.CourseId, request.StudentId);
+        var result = await _unitOfWork.Enrollments.AddAsync(newEnrollment);
 
         await _unitOfWork.SaveChangesAsync();
 
-        var response = _mapper.Map<CreateEnrollmentResponse>(result);
+        var enrollment = await _unitOfWork.Enrollments.GetByIdAsync(result.Id);
+        var response = _mapper.Map<CreateEnrollmentResponse>(enrollment);
 
         return response;
     }

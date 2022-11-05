@@ -39,21 +39,17 @@ public class CourseService : ICourseService
 
     public async Task<CreateCourseResponse?> CreateAsync(CreateCourseRequest request)
     {
-        var course = new Course(
+        var newCourse = new Course(
             request.SubjectId,
             request.InstructorId,
             request.SemesterId
         );
 
-        var result = await _unitOfWork.Courses.AddAsync(course);
-
-        if (result == null)
-        {
-            return null;
-        }
+        var result = await _unitOfWork.Courses.AddAsync(newCourse);
 
         await _unitOfWork.SaveChangesAsync();
         
+        var course = await _unitOfWork.Courses.GetByIdAsync(result.Id);
         var response = _mapper.Map<CreateCourseResponse>(course);
 
         return response;
@@ -74,7 +70,8 @@ public class CourseService : ICourseService
 
         await _unitOfWork.SaveChangesAsync();
 
-        var response = _mapper.Map<UpdateCourseResponse>(existingCourse);
+        var course = await _unitOfWork.Courses.GetByIdAsync(existingCourse.Id);
+        var response = _mapper.Map<UpdateCourseResponse>(course);
 
         return response;
     }

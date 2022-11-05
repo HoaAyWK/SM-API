@@ -67,8 +67,11 @@ public class GradeService : IGradeService
             return response;
         }
 
-        var grade = new Grade(request.StudentId, request.CourseId, request.Score);
-        var result = await _unitOfWork.Grades.AddAsync(grade);
+        var newGrade = new Grade(request.StudentId, request.CourseId, request.Score);
+        var result = await _unitOfWork.Grades.AddAsync(newGrade);
+        await _unitOfWork.SaveChangesAsync();
+
+        var grade = await _unitOfWork.Grades.GetByIdAsync(result.Id);
 
         response.Data = _mapper.Map<CreateGradeResponse>(grade);
         response.Success = true;
